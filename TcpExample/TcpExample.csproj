@@ -63,6 +63,21 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Infrastructure\ConfigStorage.cs" />
+    <Compile Include="Application\Models\AutoResponseRuleModel.cs" />
+    <Compile Include="Application\Models\SettingsModel.cs" />
+    <Compile Include="Application\Models\ValidationResult.cs" />
+    <Compile Include="Application\Services\IConfigStorage.cs" />
+    <Compile Include="Application\Services\ISettingsService.cs" />
+    <Compile Include="Application\Services\ISettingsValidator.cs" />
+    <Compile Include="Application\Services\SettingsValidator.cs" />
+    <Compile Include="Infrastructure\SettingsService.cs" />
+    <Compile Include="Composition\SimpleContainer.cs" />
+    <Compile Include="Infrastructure\TcpToolConfig.cs" />
+    <Compile Include="ViewModels\AutoResponseRuleViewModel.cs" />
+    <Compile Include="ViewModels\MainViewModel.cs" />
+    <Compile Include="ViewModels\ObservableObject.cs" />
+    <Compile Include="ViewModels\RelayCommand.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>

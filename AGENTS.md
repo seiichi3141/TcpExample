@@ -1,33 +1,33 @@
-# Repository Guidelines
+# リポジトリガイドライン
 
-## Project Structure & Module Organization
-- Solution entry is `TcpExample.sln`; WPF source lives in `TcpExample/`.
-- Application startup and resources: `TcpExample/App.xaml` and `App.xaml.cs`.
-- Main window UI and code-behind: `TcpExample/MainWindow.xaml` and `MainWindow.xaml.cs`; keep UI wiring here and push logic into helper classes where possible.
-- Generated resources/settings: `TcpExample/Properties/` (`Resources.resx`, `Settings.settings`, `AssemblyInfo.cs`).
-- Build outputs land in `TcpExample/bin/Debug` or `TcpExample/bin/Release`; temporary artifacts sit in `TcpExample/obj/`.
+## プロジェクト構成とモジュール整理
+- ソリューションのエントリは `TcpExample.sln`。WPF のソースは `TcpExample/` に配置。
+- アプリの起動とリソース: `TcpExample/App.xaml` および `App.xaml.cs`。
+- メインウィンドウの UI とコードビハインド: `TcpExample/MainWindow.xaml` および `MainWindow.xaml.cs`。UI の配線はここに留め、可能な箇所はヘルパークラスへロジックを移す。
+- 生成されるリソース/設定: `TcpExample/Properties/` (`Resources.resx`, `Settings.settings`, `AssemblyInfo.cs`)。
+- ビルド成果物は `TcpExample/bin/Debug` または `TcpExample/bin/Release`。一時生成物は `TcpExample/obj/` に配置。
 
-## Build, Test, and Development Commands
-- Build Debug: `msbuild TcpExample/TcpExample.csproj /p:Configuration=Debug`
-- Build Release: `msbuild TcpExample/TcpExample.csproj /p:Configuration=Release`
-- Clean: `msbuild TcpExample/TcpExample.csproj /t:Clean`
-- Run locally: launch `TcpExample/bin/Debug/TcpExample.exe` after a Debug build, or start debugging via Visual Studio with the solution open.
+## ビルド・テスト・開発コマンド
+- Debug ビルド: `msbuild TcpExample/TcpExample.csproj /p:Configuration=Debug`
+- Release ビルド: `msbuild TcpExample/TcpExample.csproj /p:Configuration=Release`
+- クリーン: `msbuild TcpExample/TcpExample.csproj /t:Clean`
+- ローカル実行: Debug ビルド後に `TcpExample/bin/Debug/TcpExample.exe` を起動、または Visual Studio でソリューションを開いてデバッグ開始。
 
-## Coding Style & Naming Conventions
-- Target framework is .NET Framework 4.8.1; keep code Windows-only and WPF-friendly.
-- Use 4-space indentation; braces on new lines for types/methods (Visual Studio default).
-- Naming: PascalCase for classes, methods, properties, events, and XAML control `x:Name`s (e.g., `ConnectButton`); camelCase for locals/parameters; `_camelCase` for private fields.
-- Keep code-behind minimal; prefer separating UI from networking or data logic for testability.
-- Update `App.config` if you add configuration (connection info, ports, timeouts) rather than hardcoding.
+## コーディングスタイルと命名規約
+- ターゲット フレームワークは .NET Framework 4.8.1。コードは Windows 前提で WPF に配慮。
+- インデントは 4 スペース。型/メソッドの波括弧は改行後に配置（Visual Studio 既定）。
+- 命名: クラス・メソッド・プロパティ・イベント・XAML コントロールの `x:Name` は PascalCase（例: `ConnectButton`）。ローカル変数/引数は camelCase。プライベートフィールドは `_camelCase`。
+- コードビハインドは最小限にし、UI とネットワーク/データロジックを分離してテストしやすく保つ。
+- 設定を追加する場合はハードコーディングせず `App.config` を更新（接続情報、ポート、タイムアウト等）。
 
-## Testing Guidelines
-- No automated tests exist yet. When adding them, prefer a sibling `TcpExample.Tests` project using MSTest or NUnit; name files `MainWindowTests.cs` and keep one fixture per feature.
-- Manual checks: build, run the app, and verify the main window loads without binding or startup exceptions; validate any TCP interactions you add against expected endpoints and error handling.
+## テストガイドライン
+- 自動テストは未整備。追加する場合は MSTest または NUnit を使った兄弟プロジェクト `TcpExample.Tests` を推奨。ファイル名は `MainWindowTests.cs` とし、機能ごとにフィクスチャを分ける。
+- 手動確認: ビルドしてアプリを実行し、メインウィンドウがバインドや起動例外なく開くことを確認。追加した TCP のやり取りは想定エンドポイントとエラー処理に沿うか検証。
 
-## Commit & Pull Request Guidelines
-- Commits: concise, imperative subject lines that describe the behavior change (e.g., `Add basic TCP connect UI`); group related changes together.
-- Pull requests: include a short summary, testing notes or repro steps, and screenshots/GIFs for UI updates. Link to any relevant work items or issues and call out risk areas (network changes, threading, UI responsiveness).
+## コミットとプルリクエストの指針
+- コミットは挙動変更を示す簡潔な命令形サブジェクト（例: `Add basic TCP connect UI`）。関連変更をまとめる。
+- プルリクエストには概要、テストノートや再現手順、UI 更新時のスクリーンショット/GIF を添付。関連作業項目/Issue をリンクし、リスク領域（ネットワーク変更、スレッド、UI レスポンス）を明記。
 
-## Security & Configuration Tips
-- Do not commit secrets, endpoints, or certificates; prefer app settings in `App.config` and document defaults.
-- For networking changes, validate inputs and handle socket errors gracefully to avoid UI hangs; ensure long-running work stays off the UI thread.
+## セキュリティと設定のヒント
+- シークレット、エンドポイント、証明書はコミットしない。`App.config` のアプリ設定を利用し、デフォルトを記録する。
+- ネットワーク変更時は入力検証を行い、ソケットエラーを丁寧に処理して UI のハングを防ぐ。長時間処理は UI スレッドから外す。

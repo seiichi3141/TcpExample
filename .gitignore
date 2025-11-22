@@ -1,0 +1,54 @@
+# Visual Studio / WPF
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Build outputs
+[Bb]in/
+[Oo]bj/
+**/bin/
+**/obj/
+*.log
+*.pch
+*.pdb
+*.ilk
+
+# WPF generated
+*.g.cs
+*.g.i.cs
+*.baml
+*.cache
+
+# NuGet (not expected, but ignore if present)
+packages/
+*.nupkg
+project.lock.json
+*.nuget.props
+*.nuget.targets
+
+# Test / profiling
+TestResult*/
+*.trx
+*.vsp
+*.vspx
+*.psess
+
+# Tools / plugins
+_ReSharper*/
+*.DotSettings.user
+
+# Node / npm / Yarn (念のため前提外でも生成物は無視)
+node_modules/
+.pnp.*
+.yarn/*
+!.yarn/cache
+!.yarn/releases
+!.yarn/plugins
+!.yarn/sdks
+!.yarn/versions
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*

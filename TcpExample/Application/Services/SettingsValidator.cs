@@ -20,7 +20,8 @@ namespace TcpExample.Application.Services
             }
 
             ValidateObject(settings, result);
-            ValidateObject(settings.Connection, result);
+            ValidateObject(settings.Connection1, result);
+            ValidateObject(settings.Connection2, result);
             ValidateObject(settings.AutoResponse, result);
 
             var rules = settings.AutoResponse?.Rules;

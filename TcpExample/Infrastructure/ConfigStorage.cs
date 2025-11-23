@@ -1,8 +1,8 @@
 using System;
 using System.IO;
 using System.Xml.Serialization;
+using TcpExample.Application.Models;
 using TcpExample.Application.Services;
-using TcpExample.Infrastructure.Config;
 
 namespace TcpExample.Infrastructure
 {
@@ -11,7 +11,7 @@ namespace TcpExample.Infrastructure
     /// </summary>
     public sealed class ConfigStorage : IConfigStorage
     {
-        public TcpToolConfig Load(string path)
+        public SettingsModel Load(string path)
         {
             if (string.IsNullOrWhiteSpace(path))
             {
@@ -20,17 +20,17 @@ namespace TcpExample.Infrastructure
 
             if (!File.Exists(path))
             {
-                return TcpToolConfig.CreateDefault();
+                return CreateDefault();
             }
 
-            var serializer = new XmlSerializer(typeof(TcpToolConfig));
+            var serializer = new XmlSerializer(typeof(SettingsModel));
             using (var stream = File.OpenRead(path))
             {
-                return (TcpToolConfig)serializer.Deserialize(stream);
+                return (SettingsModel)serializer.Deserialize(stream);
             }
         }
 
-        public TcpToolConfig LoadOrDefault(string path)
+        public SettingsModel LoadOrDefault(string path)
         {
             try
             {
@@ -38,11 +38,11 @@ namespace TcpExample.Infrastructure
             }
             catch
             {
-                return TcpToolConfig.CreateDefault();
+                return CreateDefault();
             }
         }
 
-        public void Save(string path, TcpToolConfig config)
+        public void Save(string path, SettingsModel config)
         {
             if (string.IsNullOrWhiteSpace(path))
             {
@@ -60,11 +60,18 @@ namespace TcpExample.Infrastructure
                 Directory.CreateDirectory(directory);
             }
 
-            var serializer = new XmlSerializer(typeof(TcpToolConfig));
+            var serializer = new XmlSerializer(typeof(SettingsModel));
             using (var stream = File.Create(path))
             {
                 serializer.Serialize(stream, config);
             }
+        }
+
+        private static SettingsModel CreateDefault()
+        {
+            var settings = new SettingsModel();
+            Application.Services.DefaultValueApplier.Apply(settings);
+            return settings;
         }
     }
 }

@@ -1,4 +1,4 @@
-using TcpExample.Infrastructure.Config;
+using TcpExample.Application.Models;
 
 namespace TcpExample.Application.Services
 {
@@ -7,8 +7,8 @@ namespace TcpExample.Application.Services
     /// </summary>
     public interface IConfigStorage
     {
-        TcpToolConfig Load(string path);
-        TcpToolConfig LoadOrDefault(string path);
-        void Save(string path, TcpToolConfig config);
+        SettingsModel Load(string path);
+        SettingsModel LoadOrDefault(string path);
+        void Save(string path, SettingsModel config);
     }
 }

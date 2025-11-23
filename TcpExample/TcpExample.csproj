@@ -65,10 +65,6 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Infrastructure\ConfigStorage.cs" />
-    <Compile Include="Infrastructure\Config\AutoResponseConfig.cs" />
-    <Compile Include="Infrastructure\Config\AutoResponseRuleConfig.cs" />
-    <Compile Include="Infrastructure\Config\ConnectionConfig.cs" />
-    <Compile Include="Infrastructure\Config\TcpToolConfig.cs" />
     <Compile Include="Application\Models\AutoResponseRuleModel.cs" />
     <Compile Include="Application\Models\AutoResponseSettingsModel.cs" />
     <Compile Include="Application\Models\ConnectionSettingsModel.cs" />

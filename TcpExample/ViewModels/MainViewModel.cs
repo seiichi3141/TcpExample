@@ -2,6 +2,7 @@ using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows.Input;
+using System.Collections.Generic;
 using TcpExample.Application.Models;
 using TcpExample.Application.Services;
 
@@ -40,7 +41,8 @@ namespace TcpExample.ViewModels
             {
                 if (SetProperty(ref _endpointIp, value))
                 {
-                    _settingsService.Current.Connection.EndpointIp = value;
+                    var conn = GetPrimaryConnection();
+                    conn.EndpointIp = value;
                 }
             }
         }
@@ -52,7 +54,8 @@ namespace TcpExample.ViewModels
             {
                 if (SetProperty(ref _port, value))
                 {
-                    _settingsService.Current.Connection.Port = value;
+                    var conn = GetPrimaryConnection();
+                    conn.Port = value;
                 }
             }
         }
@@ -120,26 +123,25 @@ namespace TcpExample.ViewModels
         {
             if (_settingsService.Current == null)
             {
-                _settingsService.SetCurrent(new SettingsModel
-                {
-                    Connection = new ConnectionSettingsModel
-                    {
-                        EndpointIp = "127.0.0.1",
-                        Port = 9000
-                    },
-                    AutoResponse = new AutoResponseSettingsModel
-                    {
-                        Enabled = true
-                    }
-                });
+                _settingsService.SetCurrent(new SettingsModel());
+            }
+
+            if (_settingsService.Current.Connection1 == null)
+            {
+                _settingsService.Current.Connection1 = new ConnectionSettingsModel { EndpointIp = "127.0.0.1", Port = 9000 };
+            }
+            if (_settingsService.Current.Connection2 == null)
+            {
+                _settingsService.Current.Connection2 = new ConnectionSettingsModel { EndpointIp = "127.0.0.1", Port = 9000 };
             }
         }
 
         private void InitializeFromCurrent()
         {
             var settings = _settingsService.Current;
-            EndpointIp = string.IsNullOrWhiteSpace(settings.Connection.EndpointIp) ? "127.0.0.1" : settings.Connection.EndpointIp;
-            Port = settings.Connection.Port <= 0 ? 9000 : settings.Connection.Port;
+            var conn = GetPrimaryConnection();
+            EndpointIp = string.IsNullOrWhiteSpace(conn.EndpointIp) ? "127.0.0.1" : conn.EndpointIp;
+            Port = conn.Port <= 0 ? 9000 : conn.Port;
             AutoResponseEnabled = settings.AutoResponse.Enabled;
 
             AutoResponses.Clear();
@@ -170,6 +172,27 @@ namespace TcpExample.ViewModels
                 AutoResponses.Add(defaultRule);
                 _ruleUseCase.AddRule(ToModel(defaultRule));
             }
+        }
+
+        private ConnectionSettingsModel GetPrimaryConnection()
+        {
+            var current = _settingsService.Current;
+            if (current == null)
+            {
+                current = new SettingsModel();
+                _settingsService.SetCurrent(current);
+            }
+
+            if (current.Connection1 == null)
+            {
+                current.Connection1 = new ConnectionSettingsModel
+                {
+                    EndpointIp = "127.0.0.1",
+                    Port = 9000
+                };
+            }
+
+            return current.Connection1;
         }
 
         private static AutoResponseRuleModel ToModel(AutoResponseRuleViewModel vm)

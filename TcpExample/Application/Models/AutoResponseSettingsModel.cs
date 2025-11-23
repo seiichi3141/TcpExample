@@ -1,15 +1,14 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-using System.Runtime.CompilerServices;
 using System.Xml.Serialization;
 
 namespace TcpExample.Application.Models
 {
-    public class AutoResponseSettingsModel : INotifyPropertyChanged
+    public class AutoResponseSettingsModel : ObservableSettingsBase
     {
         private bool _enabled;
-        private IList<AutoResponseRuleModel> _rules = new List<AutoResponseRuleModel>();
+        private List<AutoResponseRuleModel> _rules = new List<AutoResponseRuleModel>();
 
         [DefaultValue(true)]
         public bool Enabled
@@ -20,24 +19,10 @@ namespace TcpExample.Application.Models
 
         [XmlArray("AutoResponses")]
         [XmlArrayItem("Rule")]
-        public IList<AutoResponseRuleModel> Rules
+        public List<AutoResponseRuleModel> Rules
         {
             get { return _rules; }
             set { SetProperty(ref _rules, value); }
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        protected bool SetProperty<T>(ref T storage, T value, [CallerMemberName] string propertyName = null)
-        {
-            if (Equals(storage, value))
-            {
-                return false;
-            }
-
-            storage = value;
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-            return true;
         }
     }
 }

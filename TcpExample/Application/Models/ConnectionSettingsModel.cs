@@ -1,11 +1,11 @@
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-using System.Runtime.CompilerServices;
+using System.Xml.Serialization;
 using TcpExample.Application.Validation;
 
 namespace TcpExample.Application.Models
 {
-    public class ConnectionSettingsModel : INotifyPropertyChanged
+    public class ConnectionSettingsModel : ObservableSettingsBase
     {
         private string _endpointIp;
         private int _port;
@@ -27,18 +27,5 @@ namespace TcpExample.Application.Models
             set { SetProperty(ref _port, value); }
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        protected bool SetProperty<T>(ref T storage, T value, [CallerMemberName] string propertyName = null)
-        {
-            if (Equals(storage, value))
-            {
-                return false;
-            }
-
-            storage = value;
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-            return true;
-        }
     }
 }

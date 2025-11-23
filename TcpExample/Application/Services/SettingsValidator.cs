@@ -20,12 +20,39 @@ namespace TcpExample.Application.Services
             }
 
             ValidateObject(settings, result);
-            ValidateObject(settings.Connection1, result);
-            ValidateObject(settings.Connection2, result);
-            ValidateObject(settings.AutoResponse, result);
+            if (settings.Connection1 == null)
+            {
+                result.Errors.Add("Connection1 が設定されていません。");
+            }
+            else
+            {
+                ValidateObject(settings.Connection1, result);
+            }
+
+            if (settings.Connection2 == null)
+            {
+                result.Errors.Add("Connection2 が設定されていません。");
+            }
+            else
+            {
+                ValidateObject(settings.Connection2, result);
+            }
+
+            if (settings.AutoResponse == null)
+            {
+                result.Errors.Add("AutoResponse が設定されていません。");
+            }
+            else
+            {
+                ValidateObject(settings.AutoResponse, result);
+            }
 
             var rules = settings.AutoResponse?.Rules;
-            if (rules != null)
+            if (rules == null || rules.Count == 0)
+            {
+                result.Errors.Add("AutoResponse のルールが設定されていません。");
+            }
+            else
             {
                 foreach (var rule in rules)
                 {

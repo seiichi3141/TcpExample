@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Collections.Generic;
 using System.Linq;
 using TcpExample.Application.Models;
 using TcpExample.Application.Services;
@@ -30,7 +31,6 @@ namespace TcpExample.Infrastructure
             var existed = File.Exists(_path);
             Current = _storage.LoadOrDefault(_path);
             DefaultValueApplier.Apply(Current);
-            Sanitize(Current);
 
             var validation = _validator.Validate(Current);
             if (!validation.IsValid)
@@ -53,7 +53,6 @@ namespace TcpExample.Infrastructure
         {
             SetCurrent(model);
             DefaultValueApplier.Apply(Current);
-            Sanitize(Current);
             var validation = _validator.Validate(Current);
             if (!validation.IsValid)
             {
@@ -74,78 +73,40 @@ namespace TcpExample.Infrastructure
 
         private void Sanitize(SettingsModel settings)
         {
-            if (settings == null)
-            {
-                return;
-            }
-
-            if (settings.Connection1 == null)
-            {
-                settings.Connection1 = new ConnectionSettingsModel { EndpointIp = "127.0.0.1", Port = 9000 };
-            }
-            else
-            {
-                if (string.IsNullOrWhiteSpace(settings.Connection1.EndpointIp))
-                {
-                    settings.Connection1.EndpointIp = "127.0.0.1";
-                }
-                if (settings.Connection1.Port <= 0)
-                {
-                    settings.Connection1.Port = 9000;
-                }
-            }
-
-            if (settings.Connection2 == null)
-            {
-                settings.Connection2 = new ConnectionSettingsModel { EndpointIp = "127.0.0.1", Port = 9000 };
-            }
-            else
-            {
-                if (string.IsNullOrWhiteSpace(settings.Connection2.EndpointIp))
-                {
-                    settings.Connection2.EndpointIp = "127.0.0.1";
-                }
-                if (settings.Connection2.Port <= 0)
-                {
-                    settings.Connection2.Port = 9000;
-                }
-            }
-
-            if (settings.AutoResponse == null)
-            {
-                settings.AutoResponse = new AutoResponseSettingsModel();
-            }
-
-            if (settings.AutoResponse.Rules != null && settings.AutoResponse.Rules.Any())
-            {
-                var validRules = settings.AutoResponse.Rules
-                    .Where(r => !string.IsNullOrWhiteSpace(r.Pattern))
-                    .OrderBy(r => r.Priority)
-                    .ToList();
-                settings.AutoResponse.Rules = validRules;
-            }
-
-            if (settings.AutoResponse.Rules == null || !settings.AutoResponse.Rules.Any())
-            {
-                settings.AutoResponse.Rules = new System.Collections.Generic.List<AutoResponseRuleModel>
-                {
-                    new AutoResponseRuleModel
-                    {
-                        Name = "PingPong",
-                        Pattern = "PING",
-                        Response = "PONG",
-                        Enabled = true,
-                        Priority = 1
-                    }
-                };
-            }
+            // Deprecated: validation failure will trigger full default regeneration.
         }
 
         private SettingsModel CreateDefaultSettings()
         {
-            var settings = new SettingsModel();
+            var settings = new SettingsModel
+            {
+                Connection1 = new ConnectionSettingsModel
+                {
+                    EndpointIp = "127.0.0.1",
+                    Port = 9000
+                },
+                Connection2 = new ConnectionSettingsModel
+                {
+                    EndpointIp = "127.0.0.1",
+                    Port = 9000
+                },
+                AutoResponse = new AutoResponseSettingsModel
+                {
+                    Enabled = true,
+                    Rules = new List<AutoResponseRuleModel>
+                    {
+                        new AutoResponseRuleModel
+                        {
+                            Name = "PingPong",
+                            Pattern = "PING",
+                            Response = "PONG",
+                            Enabled = true,
+                            Priority = 1
+                        }
+                    }
+                }
+            };
             DefaultValueApplier.Apply(settings);
-            Sanitize(settings);
             return settings;
         }
     }

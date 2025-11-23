@@ -1,6 +1,5 @@
 using System;
 using System.IO;
-using System.Collections.Generic;
 using System.Text;
 using System.Xml;
 using System.Xml.Linq;
@@ -97,7 +96,6 @@ namespace TcpExample.Infrastructure
         {
             var settings = new SettingsModel();
             Application.Services.DefaultValueApplier.Apply(settings);
-            EnsureDefaults(settings);
             return settings;
         }
 
@@ -137,65 +135,6 @@ namespace TcpExample.Infrastructure
                     // Recurse into child
                     ApplyComments(targetElement, prop.PropertyType);
                 }
-            }
-        }
-
-        private static void EnsureDefaults(SettingsModel settings)
-        {
-            if (settings == null)
-            {
-                return;
-            }
-
-            if (settings.Connection1 == null)
-            {
-                settings.Connection1 = new ConnectionSettingsModel { EndpointIp = "127.0.0.1", Port = 9000 };
-            }
-            else
-            {
-                if (string.IsNullOrWhiteSpace(settings.Connection1.EndpointIp))
-                {
-                    settings.Connection1.EndpointIp = "127.0.0.1";
-                }
-                if (settings.Connection1.Port <= 0)
-                {
-                    settings.Connection1.Port = 9000;
-                }
-            }
-            if (settings.Connection2 == null)
-            {
-                settings.Connection2 = new ConnectionSettingsModel { EndpointIp = "127.0.0.1", Port = 9000 };
-            }
-            else
-            {
-                if (string.IsNullOrWhiteSpace(settings.Connection2.EndpointIp))
-                {
-                    settings.Connection2.EndpointIp = "127.0.0.1";
-                }
-                if (settings.Connection2.Port <= 0)
-                {
-                    settings.Connection2.Port = 9000;
-                }
-            }
-
-            if (settings.AutoResponse == null)
-            {
-                settings.AutoResponse = new AutoResponseSettingsModel();
-            }
-
-            if (settings.AutoResponse.Rules == null || settings.AutoResponse.Rules.Count == 0)
-            {
-                settings.AutoResponse.Rules = new List<AutoResponseRuleModel>
-                {
-                    new AutoResponseRuleModel
-                    {
-                        Name = "PingPong",
-                        Pattern = "PING",
-                        Response = "PONG",
-                        Enabled = true,
-                        Priority = 1
-                    }
-                };
             }
         }
     }

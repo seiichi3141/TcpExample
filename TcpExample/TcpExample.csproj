@@ -71,6 +71,7 @@
     <Compile Include="Application\Models\ObservableSettingsBase.cs" />
     <Compile Include="Application\Models\SettingsModel.cs" />
     <Compile Include="Application\Models\ValidationResult.cs" />
+    <Compile Include="Application\Serialization\XmlCommentAttribute.cs" />
     <Compile Include="Application\Services\IConfigStorage.cs" />
     <Compile Include="Application\Services\DefaultValueApplier.cs" />
     <Compile Include="Application\Services\ISettingsService.cs" />

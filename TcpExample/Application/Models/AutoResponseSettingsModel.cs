@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Xml.Serialization;
+using TcpExample.Application.Serialization;
 
 namespace TcpExample.Application.Models
 {
@@ -19,6 +20,7 @@ namespace TcpExample.Application.Models
 
         [XmlArray("AutoResponses")]
         [XmlArrayItem("Rule")]
+        [XmlComment("Auto response rule list")]
         public List<AutoResponseRuleModel> Rules
         {
             get { return _rules; }

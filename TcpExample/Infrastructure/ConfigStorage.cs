@@ -1,8 +1,13 @@
 using System;
 using System.IO;
+using System.Text;
+using System.Xml;
+using System.Xml.Linq;
 using System.Xml.Serialization;
 using TcpExample.Application.Models;
+using TcpExample.Application.Serialization;
 using TcpExample.Application.Services;
+using System.Reflection;
 
 namespace TcpExample.Infrastructure
 {
@@ -61,9 +66,29 @@ namespace TcpExample.Infrastructure
             }
 
             var serializer = new XmlSerializer(typeof(SettingsModel));
-            using (var stream = File.Create(path))
+
+            // Serialize to XDocument so we can add comments and control encoding/indentation.
+            XDocument doc;
+            using (var ms = new MemoryStream())
             {
-                serializer.Serialize(stream, config);
+                serializer.Serialize(ms, config);
+                ms.Position = 0;
+                doc = XDocument.Load(ms);
+            }
+
+            ApplyComments(doc.Root, typeof(SettingsModel));
+
+            var settings = new XmlWriterSettings
+            {
+                Encoding = new UTF8Encoding(encoderShouldEmitUTF8Identifier: false),
+                Indent = true,
+                OmitXmlDeclaration = false,
+                NewLineOnAttributes = false
+            };
+
+            using (var writer = XmlWriter.Create(path, settings))
+            {
+                doc.Save(writer);
             }
         }
 
@@ -72,6 +97,45 @@ namespace TcpExample.Infrastructure
             var settings = new SettingsModel();
             Application.Services.DefaultValueApplier.Apply(settings);
             return settings;
+        }
+
+        private static void ApplyComments(XElement root, Type type)
+        {
+            if (root == null || type == null)
+            {
+                return;
+            }
+
+            foreach (var prop in type.GetProperties(BindingFlags.Public | BindingFlags.Instance))
+            {
+                var commentAttr = prop.GetCustomAttribute<XmlCommentAttribute>();
+                if (commentAttr == null)
+                {
+                    continue;
+                }
+
+                // Determine element name
+                var elementName = prop.Name;
+                var xmlElement = prop.GetCustomAttribute<XmlElementAttribute>();
+                if (xmlElement != null && !string.IsNullOrWhiteSpace(xmlElement.ElementName))
+                {
+                    elementName = xmlElement.ElementName;
+                }
+                var xmlArray = prop.GetCustomAttribute<XmlArrayAttribute>();
+                if (xmlArray != null && !string.IsNullOrWhiteSpace(xmlArray.ElementName))
+                {
+                    elementName = xmlArray.ElementName;
+                }
+
+                var targetElement = root.Element(elementName);
+                if (targetElement != null)
+                {
+                    targetElement.AddBeforeSelf(new XComment(commentAttr.Text));
+
+                    // Recurse into child
+                    ApplyComments(targetElement, prop.PropertyType);
+                }
+            }
         }
     }
 }

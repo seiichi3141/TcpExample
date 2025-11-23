@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Xml.Serialization;
+using TcpExample.Application.Serialization;
 
 namespace TcpExample.Application.Models
 {
@@ -11,6 +12,7 @@ namespace TcpExample.Application.Models
         private AutoResponseSettingsModel _autoResponse = new AutoResponseSettingsModel();
 
         [XmlElement("Connection1")]
+        [XmlComment("Primary connection settings")]
         public ConnectionSettingsModel Connection1
         {
             get { return _connection1; }
@@ -18,6 +20,7 @@ namespace TcpExample.Application.Models
         }
 
         [XmlElement("Connection2")]
+        [XmlComment("Secondary connection settings")]
         public ConnectionSettingsModel Connection2
         {
             get { return _connection2; }
@@ -25,6 +28,7 @@ namespace TcpExample.Application.Models
         }
 
         [XmlElement("AutoResponse")]
+        [XmlComment("Auto response settings")]
         public AutoResponseSettingsModel AutoResponse
         {
             get { return _autoResponse; }

@@ -26,5 +26,15 @@ namespace TcpExample.Application.Models
             get { return _port; }
             set { SetProperty(ref _port, value); }
         }
+
+        private byte _retryCount;
+
+        [Range(0, 10)]
+        [SettingDefaultValue((byte)3)]
+        public byte RetryCount
+        {
+            get { return _retryCount; }
+            set { SetProperty(ref _retryCount, value); }
+        }
     }
 }

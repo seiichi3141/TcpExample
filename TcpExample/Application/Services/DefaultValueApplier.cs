@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using TcpExample.Application.Serialization;
 using System.ComponentModel;
+using System.Globalization;
 
 namespace TcpExample.Application.Services
 {
@@ -38,7 +39,7 @@ namespace TcpExample.Application.Services
                 // Prefer custom SettingDefaultValue to avoid XmlSerializer skipping values; fall back to DefaultValueAttribute for legacy.
                 var customDefault = prop.GetCustomAttribute<SettingDefaultValueAttribute>();
                 var defaultAttr = prop.GetCustomAttribute<DefaultValueAttribute>();
-                var defaultValue = customDefault != null ? customDefault.Value : defaultAttr?.Value;
+                var defaultValue = ConvertDefault(customDefault != null ? customDefault.Value : defaultAttr?.Value, prop.PropertyType);
 
                 if (prop.PropertyType == typeof(string))
                 {
@@ -98,6 +99,38 @@ namespace TcpExample.Application.Services
                         Apply(item);
                     }
                 }
+            }
+        }
+
+        private static object ConvertDefault(object value, Type targetType)
+        {
+            if (value == null)
+            {
+                return null;
+            }
+
+            var nonNullable = Nullable.GetUnderlyingType(targetType) ?? targetType;
+            try
+            {
+                if (nonNullable.IsEnum)
+                {
+                    if (value is string s)
+                    {
+                        return Enum.Parse(nonNullable, s);
+                    }
+                    return Enum.ToObject(nonNullable, value);
+                }
+
+                if (nonNullable == typeof(Guid))
+                {
+                    return value is Guid g ? g : new Guid(value.ToString());
+                }
+
+                return Convert.ChangeType(value, nonNullable, CultureInfo.InvariantCulture);
+            }
+            catch
+            {
+                return value;
             }
         }
     }

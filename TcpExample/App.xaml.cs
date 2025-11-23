@@ -57,9 +57,6 @@ namespace TcpExample
             var container = new SimpleContainer();
 
             container.RegisterSingleton<IConfigStorage, ConfigStorage>();
-            container.RegisterSingleton<IConnectionSettingsValidator, ConnectionSettingsValidator>();
-            container.RegisterSingleton<IAutoResponseRuleValidator, AutoResponseRuleValidator>();
-            container.RegisterSingleton<IAutoResponseSettingsValidator, AutoResponseSettingsValidator>();
             container.RegisterSingleton<ISettingsValidator, SettingsValidator>();
             container.RegisterSingleton<ISettingsService, SettingsService>();
             container.RegisterSingleton<ILoadSettingsUseCase, LoadSettingsUseCase>();

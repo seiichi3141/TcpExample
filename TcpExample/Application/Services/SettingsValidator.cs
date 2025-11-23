@@ -1,11 +1,13 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
 using TcpExample.Application.Models;
 using ValidationResultModel = TcpExample.Application.Models.ValidationResult;
 
 namespace TcpExample.Application.Services
 {
+    /// <summary>
+    /// DataAnnotations のみで検証を行うバリデータ。複雑なルールは持たない。
+    /// </summary>
     public sealed class SettingsValidator : ISettingsValidator
     {
         public ValidationResultModel Validate(SettingsModel settings)
@@ -17,18 +19,13 @@ namespace TcpExample.Application.Services
                 return result;
             }
 
+            ValidateObject(settings, result);
             ValidateObject(settings.Connection, result);
             ValidateObject(settings.AutoResponse, result);
 
             var rules = settings.AutoResponse?.Rules;
             if (rules != null)
             {
-                var duplicatePriority = rules.GroupBy(r => r.Priority).FirstOrDefault(g => g.Count() > 1);
-                if (duplicatePriority != null)
-                {
-                    result.Errors.Add("自動応答ルールの優先度が重複しています。");
-                }
-
                 foreach (var rule in rules)
                 {
                     ValidateObject(rule, result);

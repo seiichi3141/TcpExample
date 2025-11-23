@@ -1,6 +1,7 @@
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.CompilerServices;
+using TcpExample.Application.Validation;
 
 namespace TcpExample.Application.Models
 {
@@ -11,6 +12,7 @@ namespace TcpExample.Application.Models
 
         [Required]
         [DefaultValue("127.0.0.1")]
+        [IpAddress]
         public string EndpointIp
         {
             get { return _endpointIp; }

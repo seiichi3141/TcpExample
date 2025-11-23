@@ -32,7 +32,11 @@ namespace TcpExample.Infrastructure
             Current = Map(config);
             DefaultValueApplier.Apply(Current);
             Sanitize(Current);
-            ValidateOrThrow(Current);
+            var validation = _validator.Validate(Current);
+            if (!validation.IsValid)
+            {
+                Current = CreateDefaultSettings();
+            }
             return Current;
         }
 
@@ -47,7 +51,13 @@ namespace TcpExample.Infrastructure
             SetCurrent(model);
             DefaultValueApplier.Apply(Current);
             Sanitize(Current);
-            var config = Map(model);
+            var validation = _validator.Validate(Current);
+            if (!validation.IsValid)
+            {
+                Current = CreateDefaultSettings();
+            }
+
+            var config = Map(Current);
             _storage.Save(_path, config);
         }
 
@@ -99,7 +109,7 @@ namespace TcpExample.Infrastructure
 
             if (settings.AutoResponse.Rules == null || !settings.AutoResponse.Rules.Any())
             {
-                settings.AutoResponse.Rules = new List<AutoResponseRuleModel>();
+                settings.AutoResponse.Rules = new System.Collections.Generic.List<AutoResponseRuleModel>();
             }
         }
 
@@ -180,6 +190,28 @@ namespace TcpExample.Infrastructure
             }
 
             return config;
+        }
+
+        private SettingsModel CreateDefaultSettings()
+        {
+            var settings = new SettingsModel();
+            DefaultValueApplier.Apply(settings);
+            if (settings.AutoResponse.Rules == null || !settings.AutoResponse.Rules.Any())
+            {
+                settings.AutoResponse.Rules = new System.Collections.Generic.List<AutoResponseRuleModel>
+                {
+                    new AutoResponseRuleModel
+                    {
+                        Name = "PingPong",
+                        Pattern = "PING",
+                        Response = "PONG",
+                        Enabled = true,
+                        Priority = 1
+                    }
+                };
+            }
+
+            return settings;
         }
     }
 }

@@ -21,12 +21,19 @@ namespace TcpExample.Application.Services
             var type = target.GetType();
             foreach (var prop in type.GetProperties(BindingFlags.Public | BindingFlags.Instance))
             {
+                // Skip indexers
+                if (prop.GetIndexParameters().Length > 0)
+                {
+                    continue;
+                }
+
                 if (!prop.CanRead || !prop.CanWrite)
                 {
                     continue;
                 }
 
                 var current = prop.GetValue(target);
+                object updated = current;
                 var defaultAttr = prop.GetCustomAttribute<DefaultValueAttribute>();
 
                 if (prop.PropertyType == typeof(string))
@@ -53,6 +60,7 @@ namespace TcpExample.Application.Services
                         if (defaultAttr != null)
                         {
                             prop.SetValue(target, defaultAttr.Value);
+                            updated = prop.GetValue(target);
                         }
                         else
                         {
@@ -62,18 +70,23 @@ namespace TcpExample.Application.Services
                             {
                                 var instance = Activator.CreateInstance(prop.PropertyType);
                                 prop.SetValue(target, instance);
-                                Apply(instance);
+                                updated = instance;
                             }
                         }
                     }
                     else
                     {
-                        Apply(current);
+                        // avoid recursing into collections themselves; handled below
+                        updated = current;
+                        if (!(current is IEnumerable) || current is string)
+                        {
+                            Apply(current);
+                        }
                     }
                 }
 
                 // For collections, apply defaults to each element
-                var updated = prop.GetValue(target);
+                updated = prop.GetValue(target);
                 if (updated is IEnumerable enumerable && !(updated is string))
                 {
                     foreach (var item in enumerable)

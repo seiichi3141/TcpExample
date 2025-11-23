@@ -1,4 +1,4 @@
-using TcpExample.Infrastructure;
+using TcpExample.Infrastructure.Config;
 
 namespace TcpExample.Application.Services
 {

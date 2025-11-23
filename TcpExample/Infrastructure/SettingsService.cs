@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using TcpExample.Application.Models;
 using TcpExample.Application.Services;
+using TcpExample.Infrastructure.Config;
 
 namespace TcpExample.Infrastructure
 {
@@ -29,6 +30,7 @@ namespace TcpExample.Infrastructure
         {
             var config = _storage.LoadOrDefault(_path);
             Current = Map(config);
+            DefaultValueApplier.Apply(Current);
             Sanitize(Current);
             ValidateOrThrow(Current);
             return Current;
@@ -43,6 +45,7 @@ namespace TcpExample.Infrastructure
         public void Save(SettingsModel model)
         {
             SetCurrent(model);
+            DefaultValueApplier.Apply(Current);
             Sanitize(Current);
             var config = Map(model);
             _storage.Save(_path, config);
@@ -57,46 +60,46 @@ namespace TcpExample.Infrastructure
             }
         }
 
-        private static void Sanitize(SettingsModel settings)
+        private void Sanitize(SettingsModel settings)
         {
             if (settings == null)
             {
                 return;
             }
 
-            if (string.IsNullOrWhiteSpace(settings.EndpointIp))
+            if (settings.Connection == null)
             {
-                settings.EndpointIp = "127.0.0.1";
+                settings.Connection = new ConnectionSettingsModel();
             }
 
-            if (settings.Port <= 0 || settings.Port > 65535)
+            if (string.IsNullOrWhiteSpace(settings.Connection.EndpointIp))
             {
-                settings.Port = 9000;
+                settings.Connection.EndpointIp = "127.0.0.1";
             }
 
-            if (settings.AutoResponses != null && settings.AutoResponses.Any())
+            if (settings.Connection.Port <= 0 || settings.Connection.Port > 65535)
+            {
+                settings.Connection.Port = 9000;
+            }
+
+            if (settings.AutoResponse == null)
+            {
+                settings.AutoResponse = new AutoResponseSettingsModel();
+            }
+
+            if (settings.AutoResponse.Rules != null && settings.AutoResponse.Rules.Any())
             {
                 // 空パターンのルールを除外
-                var validRules = settings.AutoResponses
+                var validRules = settings.AutoResponse.Rules
                     .Where(r => !string.IsNullOrWhiteSpace(r.Pattern))
                     .OrderBy(r => r.Priority)
                     .ToList();
-                settings.AutoResponses = validRules;
+                settings.AutoResponse.Rules = validRules;
             }
 
-            if (settings.AutoResponses == null || !settings.AutoResponses.Any())
+            if (settings.AutoResponse.Rules == null || !settings.AutoResponse.Rules.Any())
             {
-                settings.AutoResponses = new[]
-                {
-                    new AutoResponseRuleModel
-                    {
-                        Name = "PingPong",
-                        Pattern = "PING",
-                        Response = "PONG",
-                        Enabled = true,
-                        Priority = 1
-                    }
-                }.ToList();
+                settings.AutoResponse.Rules = new List<AutoResponseRuleModel>();
             }
         }
 
@@ -104,26 +107,30 @@ namespace TcpExample.Infrastructure
         {
             if (config == null)
             {
-                return new SettingsModel
-                {
-                    EndpointIp = "127.0.0.1",
-                    Port = 9000,
-                    AutoResponseEnabled = true
-                };
+                return null;
             }
+
+            var connection = config.Connection ?? new ConnectionConfig();
+            var autoResponse = config.AutoResponse ?? new AutoResponseConfig();
 
             var model = new SettingsModel
             {
-                EndpointIp = string.IsNullOrWhiteSpace(config.EndpointIp) ? "127.0.0.1" : config.EndpointIp,
-                Port = config.Port <= 0 ? 9000 : config.Port,
-                AutoResponseEnabled = config.AutoResponseEnabled
+                Connection = new ConnectionSettingsModel
+                {
+                    EndpointIp = string.IsNullOrWhiteSpace(connection.EndpointIp) ? "127.0.0.1" : connection.EndpointIp,
+                    Port = connection.Port <= 0 ? 9000 : connection.Port
+                },
+                AutoResponse = new AutoResponseSettingsModel
+                {
+                    Enabled = autoResponse.Enabled
+                }
             };
 
-            if (config.AutoResponses != null && config.AutoResponses.Any())
+            if (autoResponse.Rules != null && autoResponse.Rules.Any())
             {
-                foreach (var rule in config.AutoResponses.OrderBy(r => r.Priority))
+                foreach (var rule in autoResponse.Rules.OrderBy(r => r.Priority))
                 {
-                    model.AutoResponses.Add(new AutoResponseRuleModel
+                    model.AutoResponse.Rules.Add(new AutoResponseRuleModel
                     {
                         Name = rule.Name,
                         Pattern = rule.Pattern,
@@ -146,16 +153,22 @@ namespace TcpExample.Infrastructure
 
             var config = new TcpToolConfig
             {
-                EndpointIp = model.EndpointIp ?? string.Empty,
-                Port = model.Port,
-                AutoResponseEnabled = model.AutoResponseEnabled
+                Connection = new ConnectionConfig
+                {
+                    EndpointIp = model.Connection?.EndpointIp ?? string.Empty,
+                    Port = model.Connection?.Port ?? 0
+                },
+                AutoResponse = new AutoResponseConfig
+                {
+                    Enabled = model.AutoResponse?.Enabled ?? true
+                }
             };
 
-            if (model.AutoResponses != null)
+            if (model.AutoResponse?.Rules != null)
             {
-                foreach (var rule in model.AutoResponses.OrderBy(r => r.Priority))
+                foreach (var rule in model.AutoResponse.Rules.OrderBy(r => r.Priority))
                 {
-                    config.AutoResponses.Add(new AutoResponseRuleConfig
+                    config.AutoResponse.Rules.Add(new AutoResponseRuleConfig
                     {
                         Name = rule.Name ?? string.Empty,
                         Pattern = rule.Pattern ?? string.Empty,

@@ -19,8 +19,8 @@ namespace TcpExample
 
             _container = BuildContainer();
 
-            var settingsService = _container.Resolve<ISettingsService>();
-            settingsService.Load();
+            var loadSettings = _container.Resolve<ILoadSettingsUseCase>();
+            loadSettings.Execute();
 
             var mainViewModel = _container.Resolve<MainViewModel>();
 
@@ -43,9 +43,8 @@ namespace TcpExample
 
             try
             {
-                var vm = _container.Resolve<MainViewModel>();
-                var settingsService = _container.Resolve<ISettingsService>();
-                settingsService.Save(settingsService.Current);
+                var saveSettings = _container.Resolve<ISaveSettingsUseCase>();
+                saveSettings.Execute();
             }
             catch
             {
@@ -58,8 +57,14 @@ namespace TcpExample
             var container = new SimpleContainer();
 
             container.RegisterSingleton<IConfigStorage, ConfigStorage>();
+            container.RegisterSingleton<IConnectionSettingsValidator, ConnectionSettingsValidator>();
+            container.RegisterSingleton<IAutoResponseRuleValidator, AutoResponseRuleValidator>();
+            container.RegisterSingleton<IAutoResponseSettingsValidator, AutoResponseSettingsValidator>();
             container.RegisterSingleton<ISettingsValidator, SettingsValidator>();
             container.RegisterSingleton<ISettingsService, SettingsService>();
+            container.RegisterSingleton<ILoadSettingsUseCase, LoadSettingsUseCase>();
+            container.RegisterSingleton<ISaveSettingsUseCase, SaveSettingsUseCase>();
+            container.RegisterSingleton<IManageAutoResponseRulesUseCase, ManageAutoResponseRulesUseCase>();
             container.RegisterSingleton<MainViewModel, MainViewModel>();
 
             return container;

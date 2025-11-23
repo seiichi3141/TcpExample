@@ -14,10 +14,12 @@ namespace TcpExample.ViewModels
         private bool _autoResponseEnabled = true;
         private AutoResponseRuleViewModel _selectedRule;
         private readonly ISettingsService _settingsService;
+        private readonly IManageAutoResponseRulesUseCase _ruleUseCase;
 
-        public MainViewModel(ISettingsService settingsService)
+        public MainViewModel(ISettingsService settingsService, IManageAutoResponseRulesUseCase ruleUseCase)
         {
             _settingsService = settingsService ?? throw new ArgumentNullException(nameof(settingsService));
+            _ruleUseCase = ruleUseCase ?? throw new ArgumentNullException(nameof(ruleUseCase));
             EnsureCurrentSettings();
 
             AutoResponses = new ObservableCollection<AutoResponseRuleViewModel>
@@ -38,7 +40,7 @@ namespace TcpExample.ViewModels
             {
                 if (SetProperty(ref _endpointIp, value))
                 {
-                    _settingsService.Current.EndpointIp = value;
+                    _settingsService.Current.Connection.EndpointIp = value;
                 }
             }
         }
@@ -50,7 +52,7 @@ namespace TcpExample.ViewModels
             {
                 if (SetProperty(ref _port, value))
                 {
-                    _settingsService.Current.Port = value;
+                    _settingsService.Current.Connection.Port = value;
                 }
             }
         }
@@ -62,7 +64,7 @@ namespace TcpExample.ViewModels
             {
                 if (SetProperty(ref _autoResponseEnabled, value))
                 {
-                    _settingsService.Current.AutoResponseEnabled = value;
+                    _settingsService.Current.AutoResponse.Enabled = value;
                 }
             }
         }
@@ -96,7 +98,7 @@ namespace TcpExample.ViewModels
                 Priority = nextPriority
             };
             AutoResponses.Add(vm);
-            _settingsService.Current.AutoResponses.Add(ToModel(vm));
+            _ruleUseCase.AddRule(ToModel(vm));
         }
 
         private bool CanRemoveRule(object parameter)
@@ -108,12 +110,7 @@ namespace TcpExample.ViewModels
         {
             if (SelectedRule != null)
             {
-                var model = _settingsService.Current.AutoResponses.FirstOrDefault(r => r.Priority == SelectedRule.Priority && r.Name == SelectedRule.Name);
-                if (model != null)
-                {
-                    _settingsService.Current.AutoResponses.Remove(model);
-                }
-
+                _ruleUseCase.RemoveRule(ToModel(SelectedRule));
                 AutoResponses.Remove(SelectedRule);
                 SelectedRule = null;
             }
@@ -125,9 +122,15 @@ namespace TcpExample.ViewModels
             {
                 _settingsService.SetCurrent(new SettingsModel
                 {
-                    EndpointIp = "127.0.0.1",
-                    Port = 9000,
-                    AutoResponseEnabled = true
+                    Connection = new ConnectionSettingsModel
+                    {
+                        EndpointIp = "127.0.0.1",
+                        Port = 9000
+                    },
+                    AutoResponse = new AutoResponseSettingsModel
+                    {
+                        Enabled = true
+                    }
                 });
             }
         }
@@ -135,14 +138,14 @@ namespace TcpExample.ViewModels
         private void InitializeFromCurrent()
         {
             var settings = _settingsService.Current;
-            EndpointIp = string.IsNullOrWhiteSpace(settings.EndpointIp) ? "127.0.0.1" : settings.EndpointIp;
-            Port = settings.Port <= 0 ? 9000 : settings.Port;
-            AutoResponseEnabled = settings.AutoResponseEnabled;
+            EndpointIp = string.IsNullOrWhiteSpace(settings.Connection.EndpointIp) ? "127.0.0.1" : settings.Connection.EndpointIp;
+            Port = settings.Connection.Port <= 0 ? 9000 : settings.Connection.Port;
+            AutoResponseEnabled = settings.AutoResponse.Enabled;
 
             AutoResponses.Clear();
-            if (settings.AutoResponses != null && settings.AutoResponses.Any())
+            if (settings.AutoResponse.Rules != null && settings.AutoResponse.Rules.Any())
             {
-                foreach (var rule in settings.AutoResponses.OrderBy(r => r.Priority))
+                foreach (var rule in settings.AutoResponse.Rules.OrderBy(r => r.Priority))
                 {
                     AutoResponses.Add(new AutoResponseRuleViewModel
                     {
@@ -165,7 +168,7 @@ namespace TcpExample.ViewModels
                     Priority = 1
                 };
                 AutoResponses.Add(defaultRule);
-                _settingsService.Current.AutoResponses.Add(ToModel(defaultRule));
+                _ruleUseCase.AddRule(ToModel(defaultRule));
             }
         }
 

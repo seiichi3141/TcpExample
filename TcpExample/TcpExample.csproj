@@ -46,6 +46,7 @@
     <Reference Include="System.Xaml">
       <RequiredTargetFramework>4.0</RequiredTargetFramework>
     </Reference>
+    <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
@@ -64,16 +65,34 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Infrastructure\ConfigStorage.cs" />
+    <Compile Include="Infrastructure\Config\AutoResponseConfig.cs" />
+    <Compile Include="Infrastructure\Config\AutoResponseRuleConfig.cs" />
+    <Compile Include="Infrastructure\Config\ConnectionConfig.cs" />
+    <Compile Include="Infrastructure\Config\TcpToolConfig.cs" />
     <Compile Include="Application\Models\AutoResponseRuleModel.cs" />
+    <Compile Include="Application\Models\AutoResponseSettingsModel.cs" />
+    <Compile Include="Application\Models\ConnectionSettingsModel.cs" />
     <Compile Include="Application\Models\SettingsModel.cs" />
     <Compile Include="Application\Models\ValidationResult.cs" />
+    <Compile Include="Application\Services\AutoResponseRuleValidator.cs" />
+    <Compile Include="Application\Services\AutoResponseSettingsValidator.cs" />
+    <Compile Include="Application\Services\ConnectionSettingsValidator.cs" />
     <Compile Include="Application\Services\IConfigStorage.cs" />
+    <Compile Include="Application\Services\DefaultValueApplier.cs" />
+    <Compile Include="Application\Services\IAutoResponseRuleValidator.cs" />
+    <Compile Include="Application\Services\IAutoResponseSettingsValidator.cs" />
+    <Compile Include="Application\Services\IConnectionSettingsValidator.cs" />
     <Compile Include="Application\Services\ISettingsService.cs" />
     <Compile Include="Application\Services\ISettingsValidator.cs" />
     <Compile Include="Application\Services\SettingsValidator.cs" />
+    <Compile Include="Application\UseCases\ILoadSettingsUseCase.cs" />
+    <Compile Include="Application\UseCases\IManageAutoResponseRulesUseCase.cs" />
+    <Compile Include="Application\UseCases\ISaveSettingsUseCase.cs" />
+    <Compile Include="Application\UseCases\LoadSettingsUseCase.cs" />
+    <Compile Include="Application\UseCases\ManageAutoResponseRulesUseCase.cs" />
+    <Compile Include="Application\UseCases\SaveSettingsUseCase.cs" />
     <Compile Include="Infrastructure\SettingsService.cs" />
     <Compile Include="Composition\SimpleContainer.cs" />
-    <Compile Include="Infrastructure\TcpToolConfig.cs" />
     <Compile Include="ViewModels\AutoResponseRuleViewModel.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
     <Compile Include="ViewModels\ObservableObject.cs" />

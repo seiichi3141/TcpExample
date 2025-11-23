@@ -1,15 +1,12 @@
 using System;
-using System.ComponentModel.DataAnnotations;
 
-namespace TcpExample.Application.Models
+namespace TcpExample.Infrastructure.Config
 {
-    public class AutoResponseRuleModel
+    [Serializable]
+    public class AutoResponseRuleConfig
     {
         public string Name { get; set; }
-
-        [Required]
         public string Pattern { get; set; }
-
         public string Response { get; set; }
         public bool Enabled { get; set; }
         public int Priority { get; set; }

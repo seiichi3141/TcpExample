@@ -27,6 +27,7 @@ namespace TcpExample.Infrastructure
 
         public SettingsModel Load()
         {
+            var existed = File.Exists(_path);
             Current = _storage.LoadOrDefault(_path);
             DefaultValueApplier.Apply(Current);
             Sanitize(Current);
@@ -34,6 +35,10 @@ namespace TcpExample.Infrastructure
             if (!validation.IsValid)
             {
                 Current = CreateDefaultSettings();
+            }
+            if (!existed)
+            {
+                _storage.Save(_path, Current);
             }
             return Current;
         }

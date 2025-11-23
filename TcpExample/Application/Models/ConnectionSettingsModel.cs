@@ -1,6 +1,6 @@
-using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Xml.Serialization;
+using TcpExample.Application.Serialization;
 using TcpExample.Application.Validation;
 
 namespace TcpExample.Application.Models
@@ -11,7 +11,7 @@ namespace TcpExample.Application.Models
         private int _port;
 
         [Required]
-        [DefaultValue("127.0.0.1")]
+        [SettingDefaultValue("127.0.0.1")]
         [IpAddress]
         public string EndpointIp
         {
@@ -20,12 +20,11 @@ namespace TcpExample.Application.Models
         }
 
         [Range(1, 65535)]
-        [DefaultValue(9000)]
+        [SettingDefaultValue(9000)]
         public int Port
         {
             get { return _port; }
             set { SetProperty(ref _port, value); }
         }
-
     }
 }

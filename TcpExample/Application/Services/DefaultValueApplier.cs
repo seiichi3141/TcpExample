@@ -1,8 +1,9 @@
 using System;
 using System.Collections;
-using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
+using TcpExample.Application.Serialization;
+using System.ComponentModel;
 
 namespace TcpExample.Application.Services
 {
@@ -34,22 +35,25 @@ namespace TcpExample.Application.Services
 
                 var current = prop.GetValue(target);
                 object updated = current;
+                // Prefer custom SettingDefaultValue to avoid XmlSerializer skipping values; fall back to DefaultValueAttribute for legacy.
+                var customDefault = prop.GetCustomAttribute<SettingDefaultValueAttribute>();
                 var defaultAttr = prop.GetCustomAttribute<DefaultValueAttribute>();
+                var defaultValue = customDefault != null ? customDefault.Value : defaultAttr?.Value;
 
                 if (prop.PropertyType == typeof(string))
                 {
-                    if (string.IsNullOrWhiteSpace(current as string) && defaultAttr != null)
+                    if (string.IsNullOrWhiteSpace(current as string) && defaultValue != null)
                     {
-                        prop.SetValue(target, defaultAttr.Value);
+                        prop.SetValue(target, defaultValue);
                     }
                 }
                 else if (prop.PropertyType.IsValueType)
                 {
                     if (current == null || current.Equals(Activator.CreateInstance(prop.PropertyType)))
                     {
-                        if (defaultAttr != null)
+                        if (defaultValue != null)
                         {
-                            prop.SetValue(target, defaultAttr.Value);
+                            prop.SetValue(target, defaultValue);
                         }
                     }
                 }
@@ -57,9 +61,9 @@ namespace TcpExample.Application.Services
                 {
                     if (current == null)
                     {
-                        if (defaultAttr != null)
+                        if (defaultValue != null)
                         {
-                            prop.SetValue(target, defaultAttr.Value);
+                            prop.SetValue(target, defaultValue);
                             updated = prop.GetValue(target);
                         }
                         else

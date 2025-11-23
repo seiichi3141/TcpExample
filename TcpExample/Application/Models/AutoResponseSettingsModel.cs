@@ -11,7 +11,7 @@ namespace TcpExample.Application.Models
         private bool _enabled;
         private List<AutoResponseRuleModel> _rules = new List<AutoResponseRuleModel>();
 
-        [DefaultValue(true)]
+        [SettingDefaultValue(true)]
         public bool Enabled
         {
             get { return _enabled; }

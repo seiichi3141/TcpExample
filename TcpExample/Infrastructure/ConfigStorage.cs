@@ -151,9 +151,31 @@ namespace TcpExample.Infrastructure
             {
                 settings.Connection1 = new ConnectionSettingsModel { EndpointIp = "127.0.0.1", Port = 9000 };
             }
+            else
+            {
+                if (string.IsNullOrWhiteSpace(settings.Connection1.EndpointIp))
+                {
+                    settings.Connection1.EndpointIp = "127.0.0.1";
+                }
+                if (settings.Connection1.Port <= 0)
+                {
+                    settings.Connection1.Port = 9000;
+                }
+            }
             if (settings.Connection2 == null)
             {
                 settings.Connection2 = new ConnectionSettingsModel { EndpointIp = "127.0.0.1", Port = 9000 };
+            }
+            else
+            {
+                if (string.IsNullOrWhiteSpace(settings.Connection2.EndpointIp))
+                {
+                    settings.Connection2.EndpointIp = "127.0.0.1";
+                }
+                if (settings.Connection2.Port <= 0)
+                {
+                    settings.Connection2.Port = 9000;
+                }
             }
 
             if (settings.AutoResponse == null)
